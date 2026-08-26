@@ -105,6 +105,11 @@
     (ok (equal "/models/fake" (llm-protocol:llm-model-info-id (first models))))
     (ok (equal "vllm.cpp" (llm-protocol:llm-model-info-owned-by (first models))))))
 
+(deftest default-device-follows-vllm-cpp
+  (let ((b (llm-protocol-vllm-cpp:make-vllm-cpp-backend :model-path "/models/fake")))
+    (ok (eq (vllm-cpp:default-device)
+            (llm-protocol-vllm-cpp:vllm-cpp-device b)))))
+
 (deftest catalogue
   (let ((cat (llm-protocol:make-llm-catalogue (%backend))))
     (ok (capability-protocol:capability-supported-p cat :llm-tools))

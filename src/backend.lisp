@@ -19,10 +19,7 @@
   (make-instance 'vllm-cpp-backend
                  :model-path (or model-path (%env "VLLM_MODEL_PATH")
                                  (%env "VLLM_CPP_MODEL"))
-                 :device (or device
-                             (let ((d (%env "VLLM_DEVICE")))
-                               (and d (intern (string-upcase d) :keyword)))
-                             :auto)
+                 :device (or device (vllm-cpp:default-device))
                  :engine engine))
 
 (defun use-vllm-cpp-backend (&rest args &key &allow-other-keys)
