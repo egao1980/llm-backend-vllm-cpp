@@ -1,0 +1,46 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Composed (not thin test-system.yml): consumer install of vllm-cpp linux/amd64
+# pulls the CUDA overlay. chipz buffer decompress OOMs default ~1GB SBCL heap.
+# canned test-system.yml has no heap input yet.
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: read
+    env:
+      SBCL_VERSION: "2.6.7"
+      ROSWELL_VERSION: "26.02.116"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: egao1980/cl-repository/.github/actions/setup-client@main
+
+      - uses: egao1980/cl-repository/.github/actions/setup-roswell@main
+        with:
+          sbcl-version: ${{ env.SBCL_VERSION }}
+          roswell-version: ${{ env.ROSWELL_VERSION }}
+
+      - name: SBCL heap for native overlays
+        shell: bash
+        run: ros config set dynamic-space-size 8192
+
+      - uses: egao1980/cl-repository/.github/actions/ci@main
+        with:
+          phase: install
+
+      - uses: egao1980/cl-repository/.github/actions/ci@main
+        with:
+          phase: test
