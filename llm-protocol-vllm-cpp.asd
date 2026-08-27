@@ -6,7 +6,9 @@
   :depends-on ("llm-protocol" "vllm-cpp" "json-protocol" "json-backend-jzon")
   :properties
   (:cl-repo
-   (:ci (:with ("llm-protocol/capability"))))
+   ;; llm-protocol/capability is a secondary system in the llm-protocol
+   ;; tarball, not an OCI package. SAT-missed transitive:
+   (:ci (:with ("capability-protocol"))))
   :serial t
   :pathname "src"
   :components ((:file "package")
