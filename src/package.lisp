@@ -1,4 +1,4 @@
-(defpackage #:llm-protocol-vllm-cpp
+(defpackage #:llm-backend-vllm-cpp
   (:use #:cl #:llm-protocol)
   (:nicknames #:stack-llm-vllm-cpp)
   (:export #:vllm-cpp-backend
@@ -12,4 +12,4 @@
            #:*chat-fn*
            #:*chat-stream-fn*))
 
-(in-package #:llm-protocol-vllm-cpp)
+(in-package #:llm-backend-vllm-cpp)

@@ -1,4 +1,4 @@
-(in-package #:llm-protocol-vllm-cpp)
+(in-package #:llm-backend-vllm-cpp)
 
 (defvar *chat-fn* #'vllm-cpp:chat
   "Injected for tests. (lambda (engine request-json) response-json).")

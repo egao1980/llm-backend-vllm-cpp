@@ -1,4 +1,4 @@
-(defpackage #:llm-protocol-vllm-cpp/tests
+(defpackage #:llm-backend-vllm-cpp/tests
   (:use #:cl #:rove))
 
-(in-package #:llm-protocol-vllm-cpp/tests)
+(in-package #:llm-backend-vllm-cpp/tests)
