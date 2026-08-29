@@ -1,4 +1,4 @@
-(in-package #:llm-protocol-vllm-cpp/tests)
+(in-package #:llm-backend-vllm-cpp/tests)
 
 (defun %ht (&rest kvs)
   (let ((h (make-hash-table :test 'equal)))
@@ -40,12 +40,12 @@
   (funcall on-delta "" t))
 
 (defmacro %with-fake (&body body)
-  `(let ((llm-protocol-vllm-cpp:*chat-fn* #'%fake-chat)
-         (llm-protocol-vllm-cpp:*chat-stream-fn* #'%fake-stream))
+  `(let ((llm-backend-vllm-cpp:*chat-fn* #'%fake-chat)
+         (llm-backend-vllm-cpp:*chat-stream-fn* #'%fake-stream))
      ,@body))
 
 (defun %backend ()
-  (llm-protocol-vllm-cpp:make-vllm-cpp-backend
+  (llm-backend-vllm-cpp:make-vllm-cpp-backend
    :model-path "/models/fake"
    :engine :fake))
 
@@ -62,7 +62,7 @@
 (deftest settings-on-wire
   (let ((seen nil))
     (%with-fake
-      (let ((llm-protocol-vllm-cpp:*chat-fn*
+      (let ((llm-backend-vllm-cpp:*chat-fn*
               (lambda (engine json)
                 (declare (ignore engine))
                 (setf seen (stack-json:decode json))
@@ -106,9 +106,9 @@
     (ok (equal "vllm.cpp" (llm-protocol:llm-model-info-owned-by (first models))))))
 
 (deftest default-device-follows-vllm-cpp
-  (let ((b (llm-protocol-vllm-cpp:make-vllm-cpp-backend :model-path "/models/fake")))
+  (let ((b (llm-backend-vllm-cpp:make-vllm-cpp-backend :model-path "/models/fake")))
     (ok (eq (vllm-cpp:default-device)
-            (llm-protocol-vllm-cpp:vllm-cpp-device b)))))
+            (llm-backend-vllm-cpp:vllm-cpp-device b)))))
 
 (deftest catalogue
   (let ((cat (llm-protocol:make-llm-catalogue (%backend))))
@@ -128,7 +128,7 @@
        (skip "libvllm not present"))
       (t
        (let ((r (llm-protocol:generate
-                 (llm-protocol-vllm-cpp:make-vllm-cpp-backend)
+                 (llm-backend-vllm-cpp:make-vllm-cpp-backend)
                  "Reply with the single word pong and nothing else."
                  :settings '(:temperature 0 :max-tokens 32))))
          (ok (plusp (length (or (llm-protocol:llm-response-text r) "")))))))))

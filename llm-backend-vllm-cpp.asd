@@ -1,5 +1,5 @@
-(defsystem "llm-protocol-vllm-cpp"
-  :version "0.1.0"
+(defsystem "llm-backend-vllm-cpp"
+  :version "0.2.0"
   :description "llm-protocol backend over vllm-cpp (mudler/vllm.cpp C ABI)"
   :author "egao1980"
   :license "MIT"
@@ -13,10 +13,10 @@
   :pathname "src"
   :components ((:file "package")
                (:file "backend"))
-  :in-order-to ((test-op (test-op "llm-protocol-vllm-cpp/tests"))))
+  :in-order-to ((test-op (test-op "llm-backend-vllm-cpp/tests"))))
 
-(defsystem "llm-protocol-vllm-cpp/tests"
-  :depends-on ("llm-protocol-vllm-cpp" "llm-protocol/capability" "rove")
+(defsystem "llm-backend-vllm-cpp/tests"
+  :depends-on ("llm-backend-vllm-cpp" "llm-protocol/capability" "rove")
   :pathname "tests"
   :serial t
   :components ((:file "package")
