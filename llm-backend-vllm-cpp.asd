@@ -1,5 +1,5 @@
 (defsystem "llm-backend-vllm-cpp"
-  :version "0.2.0"
+  :version "0.3.0"
   :description "llm-protocol backend over vllm-cpp (mudler/vllm.cpp C ABI)"
   :author "egao1980"
   :license "MIT"
