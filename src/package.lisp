@@ -10,6 +10,7 @@
            #:ensure-vllm-cpp-engine
            #:close-vllm-cpp-backend
            #:*chat-fn*
-           #:*chat-stream-fn*))
+           #:*chat-stream-fn*
+           #:*embed-fn*))
 
 (in-package #:llm-backend-vllm-cpp)

@@ -6,6 +6,9 @@
 (defvar *chat-stream-fn* #'vllm-cpp:chat-stream
   "Injected for tests. (lambda (engine request-json on-delta)).")
 
+(defvar *embed-fn* #'vllm-cpp:embed
+  "Injected for tests. (lambda (engine texts) → (values vectors dim prompt-tokens)).")
+
 (defun %env (name)
   (let ((v (uiop:getenv name)))
     (and v (plusp (length v)) v)))
@@ -57,6 +60,9 @@
 
 (defmethod backend-supports-p ((backend vllm-cpp-backend) (feature (eql :responses)))
   nil)
+
+(defmethod backend-supports-p ((backend vllm-cpp-backend) (feature (eql :embeddings)))
+  t)
 
 (defun %ht (&rest kvs)
   (let ((h (make-hash-table :test 'equal)))
@@ -293,3 +299,32 @@
   (list (make-llm-model-info
          :id (or (backend-model backend) "vllm")
          :owned-by "vllm.cpp")))
+
+(defun %slice-embedding (vec dimensions)
+  (cond
+    ((null dimensions) vec)
+    ((> dimensions (length vec))
+     (error 'llm-error
+            :message (format nil "requested dimensions ~a > model dim ~a"
+                             dimensions (length vec))))
+    (t (subseq vec 0 dimensions))))
+
+(defmethod embed ((backend vllm-cpp-backend) inputs &key model dimensions
+                  encoding-format)
+  (when (and encoding-format
+             (not (member encoding-format '(:float "float") :test #'equal)))
+    (error 'llm-unsupported
+           :message (format nil "vllm.cpp embeddings are float-only, got ~s"
+                            encoding-format)))
+  (let* ((texts (coerce-embed-inputs inputs))
+         (engine (ensure-vllm-cpp-engine backend)))
+    (multiple-value-bind (vecs dim tokens)
+        (funcall *embed-fn* engine texts)
+      (declare (ignore dim))
+      (make-llm-embed-result
+       :embeddings (loop for v in vecs for i from 0
+                         collect (make-llm-embedding
+                                  :vector (%slice-embedding v dimensions)
+                                  :index i))
+       :model (or model (backend-model backend))
+       :usage (make-llm-usage :input-tokens tokens :total-tokens tokens)))))

@@ -4,7 +4,7 @@
 
 Renamed from `llm-protocol-vllm-cpp` — product backends use `*-backend-*`.
 
-`generate` / `stream-generate` → `vllm_chat` / `vllm_chat_stream`. `respond` falls back to `items->turns` then `generate` (no `/responses` wire).
+`generate` / `stream-generate` → `vllm_chat` / `vllm_chat_stream`. `respond` falls back to `items->turns` then `generate` (no `/responses` wire). `embed` → `vllm_embed` (pooling checkpoint; text engines refuse).
 
 The published **linux/amd64** `vllm-cpp` overlay **is CUDA**. `make-vllm-cpp-backend` defaults `:device` to `vllm-cpp:default-device` (`:cuda` on linux/amd64, `:auto` elsewhere). Override with `:device` or `VLLM_DEVICE`. CPU linux and MLX are local `vllm-cpp` flavors, not extra OCI platforms.
 
