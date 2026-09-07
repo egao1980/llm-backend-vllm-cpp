@@ -93,6 +93,46 @@
       (ok (equal "ok" (llm-protocol:llm-response-text r)))
       (ok (llm-protocol:llm-text-part-p (first parts))))))
 
+(defun %fake-stream-tools (engine request-json on-delta)
+  (declare (ignore engine request-json))
+  (funcall on-delta
+           (stack-json:encode
+            (%ht "choices"
+                 (vector (%ht "delta"
+                              (%ht "tool_calls"
+                                   (vector (%ht "index" 0
+                                                "id" "call_1"
+                                                "type" "function"
+                                                "function"
+                                                (%ht "name" "sum"
+                                                     "arguments" ""))))))))
+           nil)
+  (funcall on-delta
+           (stack-json:encode
+            (%ht "choices"
+                 (vector (%ht "finish_reason" "tool_calls"
+                              "delta"
+                              (%ht "tool_calls"
+                                   (vector (%ht "index" 0
+                                                "function"
+                                                (%ht "arguments" "{\"a\":1}"))))))))
+           nil)
+  (funcall on-delta "" t))
+
+(deftest stream-generate-tools
+  (let ((llm-backend-vllm-cpp:*chat-stream-fn* #'%fake-stream-tools))
+    (let* ((seen nil)
+           (r (llm-protocol:stream-generate
+               (%backend) "add"
+               :tools (list (llm-protocol:make-llm-tool :name "sum"))
+               :on-part (lambda (p) (push p seen)))))
+      (ok (eq :tool-use (llm-protocol:llm-response-finish-reason r)))
+      (ok (equal "sum" (llm-protocol:llm-tool-call-part-name
+                        (first (llm-protocol:llm-response-tool-calls r)))))
+      (ok (equal "{\"a\":1}" (llm-protocol:llm-tool-call-part-arguments
+                              (first (llm-protocol:llm-response-tool-calls r)))))
+      (ok (find-if #'llm-protocol:llm-tool-call-part-p seen)))))
+
 (deftest respond-falls-back-to-generate
   (%with-fake
     (let ((r (llm-protocol:respond (%backend) "hi")))
