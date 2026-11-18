@@ -3,7 +3,7 @@
   :description "llm-protocol backend over vllm-cpp (mudler/vllm.cpp C ABI)"
   :author "egao1980"
   :license "MIT"
-  :depends-on ("llm-protocol" (:version "vllm-cpp" "0.2.0") "json-protocol" "json-backend-jzon")
+  :depends-on ("llm-protocol" (:version "vllm-cpp" "0.2.2") "json-protocol" "json-backend-jzon")
   :properties
   (:cl-repo
    ;; llm-protocol/capability is a secondary system in the llm-protocol
